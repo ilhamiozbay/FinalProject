@@ -1,5 +1,6 @@
 ﻿using DataAccess.Abstract;
 using Entities.Concrete;
+using Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,18 +17,18 @@ namespace DataAccess.Concrete.InMemory
             _products = new List<Product>();
             _products.Add(new Product
             {
-                Id = 1,
+                ProductId = 1,
                 CategoryId = 1,
-                Name = "Bardak",
+                ProductName = "Bardak",
                 UnitPrice = 15,
                 UnitsInStock = 15
             });
 
             _products.Add(new Product
             {
-                Id = 2,
+                ProductId = 2,
                 CategoryId = 2,
-                Name = "Kamera",
+                ProductName = "Kamera",
                 UnitPrice = 500,
                 UnitsInStock = 3
             });
@@ -39,7 +40,7 @@ namespace DataAccess.Concrete.InMemory
 
         public void Delete(Product product)
         {
-            Product productToDelete = _products.SingleOrDefault(p => p.Id == product.Id);
+            Product productToDelete = _products.SingleOrDefault(p => p.ProductId == product.ProductId);
 
             _products.Remove(productToDelete);
         }
@@ -64,10 +65,15 @@ namespace DataAccess.Concrete.InMemory
             return _products.Where(p => p.CategoryId == categoryId).ToList();
         }
 
+        public List<ProductDetailDto> GetProductDetails()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Update(Product product)
         {
-            Product productToUpdate = _products.SingleOrDefault(p => p.Id == product.Id);
-            productToUpdate.Name = product.Name;
+            Product productToUpdate = _products.SingleOrDefault(p => p.ProductId == product.ProductId);
+            productToUpdate.ProductName = product.ProductName;
             productToUpdate.CategoryId = product.CategoryId;
             productToUpdate.UnitPrice= product.UnitPrice;
             productToUpdate.UnitsInStock= product.UnitsInStock;
