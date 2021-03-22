@@ -2,6 +2,7 @@
 using Business.BusinessAspects.Autofac;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Caching;
 using Core.Aspects.Autofac.Validation;
 using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Business;
@@ -30,9 +31,10 @@ namespace Business.Concrete
 
         [SecuredOperation("product.add")]
         [ValidationAspect(typeof(ProductValidator))]
+        [CacheRemoveAspect("IProductService.Get")]
         public IResult Add(Product product)
         {
-            var result=BusinessRules.Run(CheckIfProductCountOfCategoryCorrect(product.CategoryId),
+            var result = BusinessRules.Run(CheckIfProductCountOfCategoryCorrect(product.CategoryId),
                 CheckIfProductNameAlreadyExists(product.ProductName),
                 CheckIfCategoryLimitExceeded());
 
@@ -47,8 +49,8 @@ namespace Business.Concrete
 
         private IResult CheckIfProductCountOfCategoryCorrect(int categoryId)
         {
-            var result= _productDal.GetAll(p => p.CategoryId == categoryId).Count;
-            if (result>=15)
+            var result = _productDal.GetAll(p => p.CategoryId == categoryId).Count;
+            if (result >= 15)
             {
                 return new ErrorResult(Messages.ProductCountOfCategoryError);
 
@@ -72,7 +74,7 @@ namespace Business.Concrete
         private IResult CheckIfCategoryLimitExceeded()
         {
             var result = _categoryService.GetAll().Data.Count;
-            if (result>=15)
+            if (result >= 15)
             {
                 return new ErrorResult(Messages.CategoryLimitExceeded);
 
@@ -82,15 +84,17 @@ namespace Business.Concrete
         }
 
         [ValidationAspect(typeof(ProductValidator))]
+        [CacheRemoveAspect("IProductService.Get")]
         public IResult Update(Product product)
         {
             _productDal.Update(product);
             return new SuccessResult(Messages.ProductUpdated);
         }
 
+        [CacheAspect(duration: 30)]
         public IDataResult<List<Product>> GetAll()
         {
-            if (DateTime.Now.Hour==2)
+            if (DateTime.Now.Hour == 2)
             {
                 return new ErrorDataResult<List<Product>>(Messages.MaintenanceTime);
 
@@ -109,6 +113,7 @@ namespace Business.Concrete
             return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.UnitPrice >= min && p.UnitPrice <= max));
         }
 
+        [CacheAspect]
         public IDataResult<Product> GetById(int id)
         {
             return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductId == id));
@@ -119,6 +124,15 @@ namespace Business.Concrete
             return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetails());
         }
 
-        
+        public IResult AddTransactional(Product product)
+        {
+            Add(product);
+            if (product.UnitPrice<10)
+            {
+            throw new Exception("işlem sırasında hata");
+            }
+            Add(product);
+            return new SuccessResult();
+        }
     }
 }

@@ -20,5 +20,8 @@ namespace Business.Abstract
         IResult Add(Product product);
         IResult Update(Product product);
         //void Delete(Product product);
+
+        IResult AddTransactional(Product product);
+
     }
 }
