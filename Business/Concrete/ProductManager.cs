@@ -3,6 +3,7 @@ using Business.BusinessAspects.Autofac;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Caching;
+using Core.Aspects.Autofac.Transaction;
 using Core.Aspects.Autofac.Validation;
 using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Business;
@@ -124,12 +125,13 @@ namespace Business.Concrete
             return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetails());
         }
 
+        [TransactionScopeAspect]
         public IResult AddTransactional(Product product)
         {
             Add(product);
-            if (product.UnitPrice<10)
+            if (product.UnitPrice < 10)
             {
-            throw new Exception("işlem sırasında hata");
+                throw new Exception("işlem sırasında hata");
             }
             Add(product);
             return new SuccessResult();
