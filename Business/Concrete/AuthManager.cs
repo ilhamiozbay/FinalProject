@@ -39,6 +39,9 @@ namespace Business.Concrete
                 return new ErrorDataResult<User>(Messages.UserNotFound);
             }
 
+            //string hashString = Convert.ToBase64String(userToCheck.PasswordHash);
+            //string saltString = Convert.ToBase64String(userToCheck.PasswordSalt);
+
             if (!HashingHelper.VerifyPasswordHash(userForLoginDto.Password, userToCheck.PasswordHash,userToCheck.PasswordSalt))
             {
                 return new ErrorDataResult<User>(Messages.PasswordError);
@@ -52,6 +55,10 @@ namespace Business.Concrete
         {
             byte[] passwordHash, passwordSalt;
             HashingHelper.CreatePasswordHash(userForRegisterDto.Password, out passwordHash, out passwordSalt);
+
+            //string hashString = Convert.ToBase64String(passwordHash);
+            //string saltString = Convert.ToBase64String(passwordSalt);
+            
             var user = new User
             {
                 Email = userForRegisterDto.Email,
