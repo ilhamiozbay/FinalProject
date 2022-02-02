@@ -13,7 +13,7 @@ namespace Core.CrossCuttingConcerns.Caching.Microsoft
     public class MemoryCacheManager : ICacheManager
     {
         //Adapter pattern
-        IMemoryCache _memoryCache;
+        readonly IMemoryCache _memoryCache;
 
         public MemoryCacheManager()
         {
